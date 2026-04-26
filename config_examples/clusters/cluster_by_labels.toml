@@ -1,0 +1,7 @@
+[[clusters]]
+name = "existing_staging_cluster_selector" # Blueprint name for labels
+type = "cluster_by_labels"
+
+[clusters.cluster_labels]
+environment = "staging"
+purpose = "adhoc"

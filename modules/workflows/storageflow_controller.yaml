@@ -1,0 +1,58 @@
+main:
+  params: [input]
+  steps:
+    - init:
+        assign:
+          - run_uuid: $${input.run_uuid}
+          - operation_id: $${input.operation_id}
+          - poll_interval_seconds: $${input.poll_interval_seconds}
+          - max_retries: 5
+          - base_url: ${cloud_run_base_url}
+
+    - poll_loop:
+        try:
+          steps:
+            - call_api:
+                call: http.get
+                args:
+                  url: $${base_url + "/jobs/" + operation_id}
+                  auth:
+                    type: OIDC
+                  headers:
+                    x-storageflow-run-uuid: $${run_uuid}
+                result: rest_response
+
+            - check_completion:
+                switch:
+                  - condition: $${rest_response.body.is_completed == true}
+                    next: end_workflow
+
+            - wait_and_poll_again:
+                call: sys.sleep
+                args:
+                  seconds: $${poll_interval_seconds}
+                next: poll_loop
+
+        retry:
+          max_retries: $${max_retries}
+          backoff:
+            initial_delay: 5
+            max_delay: 90
+            multiplier: 3
+
+        except:
+          as: e
+          steps:
+            - handle_known_errors:
+                switch:
+                  - condition: $${e.code == 500}
+                    return: "Server Problem"
+                  - condition: $${e.code == 404}
+                    return: "Operation id not found"
+                  - condition: $${e.code == 403}
+                    return: "Authentication error."
+            - unhandled_exception:
+                raise: $${e}
+
+    - end_workflow:
+        return: $${rest_response.body}

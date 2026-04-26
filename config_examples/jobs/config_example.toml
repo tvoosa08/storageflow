@@ -1,0 +1,35 @@
+# --- Jobs Section (Referencing Cluster Blueprints) ---
+[[jobs]]
+name = "my_pyspark_managed_job"
+source_bucket = "ys-gcp-your-bucket"
+source_prefix = "^daily/data/\\d{8}/[^/]+\\.bz2$"
+service_account = "job-runner@your-project.iam.gserviceaccount.com"
+mode = "folder"
+job_type = "pyspark"
+# Job points to a blueprint
+cluster_blueprint_name = "ephemeral-standard-pyspark"
+
+
+[jobs.concurrency_config] # ISO 8601 duration like 'PT30S'
+double_tap_window = "PT30S"
+cooldown_window = "PT30M"
+ttl_buffer = "P1D"
+schedule_delay = "PT10M"
+
+[jobs.task_config] # PySpark job specific configuration
+main_python_file_uri = "common://scripts/pyspark/bigquery/overwrite_partition.py"
+args = [
+  "--input_path=gs://{{ bucket }}/{{ prefix }}",
+  "--format=delimited",
+  "--delimiter=u+0001",
+  "--dataset=apollo_landing",
+  "--table=dim_sfdc_prm_source_tag_snapshot",
+  "--temp_bucket=ys-gcp-apollo-prod-use5-temp",
+  "--compression=bzip2",
+  "--log_level=DEBUG",
+  "--partition_format=yyyymmdd",
+  "--partition_type=date",
+  "--partition_regex=(\\d{8})(?=/|$)",
+  "--create_table",
+  "--schema=source_id:string, partner_id:string, agreement_id:string, product:string, ex_partner_loc_id:string, x_traffic_type:string, x_traffic_class_tier0:string, x_traffic_class_tier1:string, partner_short_name:string, created_by:string, updated_by:string, created_date:string, updated_date:string, aggregate_name:string, yahoo_property:string, pub_config_group:string, market_classification:string, finance_classification:string, hybrid:string, pre_12_2009:string, rps_guarantee:string, platform:string, product_category:string, traffic_source:string, traffic_source_breakdown:string, ops_finance_name:string, recordid_sourcetag:string, is_deleted:string, whitespace_exists:string, ypa_dm:string, search_distro_system:string, internal_flag:string, external_tag_name:string, google_serving_tag:string, search_category:string",
+]

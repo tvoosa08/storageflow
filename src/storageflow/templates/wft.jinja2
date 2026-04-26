@@ -1,0 +1,44 @@
+{
+  "placement": {
+    {% if cluster.placement_type == "managed_cluster" %}
+    "managed_cluster": {
+      "cluster_name": "{{ cluster.name }}",
+      "config": {{ cluster.config | tojson }}
+    }
+    {% elif cluster.placement_type == "cluster_by_name" %}
+    "cluster_selector": {
+      "cluster_name": "{{ cluster.cluster_name_locator }}"
+    }
+    {% elif cluster.placement_type == "cluster_by_labels" %}
+    "cluster_selector": {
+      "cluster_labels": {{ cluster.cluster_labels | tojson }}
+    }
+    {% endif %}
+  },
+  "jobs": [
+    {
+      "step_id": "{{ job.name }}-step",
+      "pyspark_job": {
+        "main_python_file_uri": "{{ job.task_config._remote_main_python_file_path }}"
+        {% if job.task_config.args %},
+        "args": {{ job.task_config.args | tojson }}
+        {% endif %}
+        {% if job.task_config.jar_file_uris %},
+        "jar_file_uris": {{ job.task_config.jar_file_uris | tojson }}
+        {% endif %}
+        {% if job.task_config.python_file_uris %},
+        "python_file_uris": {{ job.task_config.python_file_uris | tojson }}
+        {% endif %}
+        {% if job.task_config.archive_uris %},
+        "archive_uris": {{ job.task_config.archive_uris | tojson }}
+        {% endif %}
+        {% if job.task_config.file_uris %},
+        "file_uris": {{ job.task_config.file_uris | tojson }}
+        {% endif %}
+        {% if job.task_config.properties %},
+        "properties": {{ job.task_config.properties | tojson }}
+        {% endif %}
+      }
+    }
+  ]
+}

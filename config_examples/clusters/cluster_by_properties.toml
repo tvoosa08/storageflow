@@ -1,0 +1,25 @@
+# --- Cluster Blueprints Section ---
+[[clusters]]
+name = "ephemeral-standard-pyspark" # This is the blueprint name
+type = "managed_cluster"
+
+[clusters.config] # This is the COMPLETE config for this managed cluster blueprint
+[clusters.config.gce_cluster_config]
+internal_ip_only = true
+subnetwork_uri = "projects/home-asarubbi-d/regions/us-east5/subnetworks/search-cloud-data-subnetwork"
+service_account = "search-cloud-data@home-asarubbi-d.iam.gserviceaccount.com"
+tags = ["dataflow"]
+
+[clusters.config.master_config]
+machine_type_uri = "e2-standard-2"
+num_instances = 1
+
+[clusters.config.worker_config]
+num_instances = 0
+
+[clusters.config.software_config]
+image_version = "2.3-debian12"
+[clusters.config.software_config.properties]
+"dataproc:dataproc.logging.stackdriver.enable" = "true"
+"dataproc:dataproc.logging.stackdriver.job.driver.enable" = "true"
+"dataproc:dataproc.logging.stackdriver.job.yarn.container.enable" = "true"

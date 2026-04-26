@@ -1,0 +1,4 @@
+[[clusters]]
+name = "existing_prod_cluster_selector"                 # Blueprint name for selection
+type = "cluster_by_name"
+cluster_name_locator = "my-production-cluster-instance" # Actual name of the running cluster

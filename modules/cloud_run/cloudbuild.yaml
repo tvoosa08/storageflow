@@ -1,0 +1,14 @@
+steps:
+  - id: "Build and Push A Docker Container Image"
+    name: "gcr.io/cloud-builders/docker"
+    script: |
+      docker build -t ${_REPO_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/${_IMAGE_NAME}:${_IMAGE_TAG} -f ${_DOCKER_FILE} .
+    automapSubstitutions: true
+
+serviceAccount: "${_SERVICE_ACCOUNT}"
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+images:
+  - "${_REPO_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO_NAME}/${_IMAGE_NAME}:${_IMAGE_TAG}"

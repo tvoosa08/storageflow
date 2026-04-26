@@ -1,0 +1,8 @@
+[paths]
+config_root = "{{ config_path }}"
+jobs_root = "{{ config_root }}/jobs"
+common_jobs_path_fragment = "{{ jobs_root }}/common"
+per_env_jobs_path_fragment = "{{ jobs_root }}/env/{{ env }}/{{ project_id }}"
+templates_root = "{{ config_root }}/templates"
+common_templates_path_fragment = "{{ templates_root }}/common"
+per_env_templates_path_fragment = "{{ templates_root }}/env/{{ env }}/{{ project_id }}"
